@@ -429,6 +429,76 @@ def corrFeatures(data, gene, top_n=50, sample_size=5000, vmin=0.0, vmax=1.0):
         sns.heatmap(corr, mask=mask, vmin=vmin, vmax=vmax, square=True, cmap='YlGnBu', linewidth=0.1)
     return corr.index.tolist()
 
+### new correlated features
+def corrMat(data, sample_size=1000, corr_method='spearman'):
+    
+    # random sample
+    obs_indices = np.random.choice(data.shape[0], size=sample_size, replace=False)
+
+    # dataframe
+    exp_df = pd.DataFrame(data.X[obs_indices].todense())
+    exp_df.columns = data.var_names
+
+    # subset genes with non-zero variance
+    exp_df = exp_df.loc[:,exp_df.var(axis=0)!=0].copy()
+
+    # correlation matrix
+    corr=exp_df.corr(method=corr_method)
+    
+    return corr
+
+def corrPlot(corr, gene, top_n=50, vmin=-1.0, vmax=1.0, figsize=15, clustermap=False):
+    
+    # index of gene
+    idx = corr.index.get_loc(gene)
+
+    # arg sort
+    top_cor_idx = np.argsort(abs(corr.iloc[idx]))
+
+    # subset corr mat
+    subset = corr.iloc[top_cor_idx[-top_n:],top_cor_idx[-top_n:]]
+
+    # plot
+    with rc_context({'figure.figsize': (figsize, figsize)}):
+        sns.set(style='white', font_scale=0.7)
+        if clustermap:
+            sns.clustermap(subset, vmin=vmin, vmax=vmax, cmap='vlag', linewidth=0.1)
+        else:
+            sns.heatmap(subset, vmin=vmin, vmax=vmax, cmap='vlag', linewidth=0.1, square=True)
+        
+    return subset
+
+def corrFeatures2(data, gene, top_n=50, sample_size=1000, vmin=-1.0, vmax=1.0):
+    
+    # random sample
+    obs_indices = np.random.choice(data.shape[0], size=sample_size, replace=False)
+
+    # dataframe
+    exp_df = pd.DataFrame(data.X[obs_indices].todense())
+    exp_df.columns = data.var_names
+
+    # subset genes with non-zero variance
+    exp_df = exp_df.loc[:,exp_df.var(axis=0)!=0].copy()
+
+    # correlation matrix
+    corr=exp_df.corr()
+
+    # index of gene
+    idx = corr.index.get_loc(gene)
+
+    # arg sort
+    top_cor_idx = np.argsort(abs(corr.iloc[idx]))
+
+    # subset corr mat
+    subset = corr.iloc[top_cor_idx[-top_n:],top_cor_idx[-top_n:]]
+
+    # plot
+    with rc_context({'figure.figsize': (15, 15)}):
+        sns.set(style='white', font_scale=0.75)
+        sns.clustermap(subset, vmin=vmin, vmax=vmax, cmap='vlag', linewidth=0.1)
+        
+    return subset
+
 ### QC: mark MitoCarta genes
 def mark_MitoCarta(data):
     ### define mitocarta_genes
