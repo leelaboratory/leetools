@@ -700,7 +700,7 @@ def concat_on_disk(input_pths, output_pth, temp_pth='temp.h5ad'):
                 else:
                     mtx.append(SparseDataset(src['X']))
                 
-def write_h5ad_with_new_annotation(original_h5ad, adata, new_h5ad, raw = False):
+def write_h5ad_with_new_annotation(original_h5ad, adata, new_h5ad, raw = True):
     # new annotation
     new_uns=None
     if adata.uns:
@@ -732,7 +732,7 @@ def write_h5ad_with_new_annotation(original_h5ad, adata, new_h5ad, raw = False):
             write_elem(target, "X", dummy_X)
             SparseDataset(target["X"]).append(SparseDataset(src["X"]))
             # append raw/X if needed
-            if raw:
+            if raw and ('raw' in h5py.File(orig_h5ad, 'r')):
                 write_elem(target, "raw/X", dummy_X)
                 SparseDataset(target["raw/X"]).append(SparseDataset(src["raw/X"]))
 
