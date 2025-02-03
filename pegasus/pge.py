@@ -237,6 +237,10 @@ def qc_boundary(counts, k=3):
     mad = stats.median_abs_deviation(x)
     return np.exp(np.median(x) - k*mad), np.exp(np.median(x) + k*mad)
 
+def mad_boundary(x, k=3):
+    mad = stats.median_abs_deviation(x)
+    return (np.median(x) - k*mad), (np.median(x) + k*mad)
+    
 ### aggregates mean normalized expression per cluster
 def agg_by_cluster(h5ad_file, cluster_label):
     
@@ -822,7 +826,7 @@ def ondisk_subset(orig_h5ad, new_h5ad, subset_obs, subset_var = None, chunk_size
                 mtx.append(tmp_csr)
 
             # raw/X
-            if raw:
+            if raw and ('raw' in h5py.File(orig_h5ad, 'r')):
                 with h5py.File(orig_h5ad, 'r') as f:
                     tmp_indptr = csr_indptr[row_start:row_end+1]
                     
