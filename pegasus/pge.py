@@ -701,25 +701,34 @@ def concat_on_disk(input_pths, output_pth, temp_pth='temp.h5ad'):
                     mtx.append(SparseDataset(src['X']))
                 
 def write_h5ad_with_new_annotation(original_h5ad, adata, new_h5ad, raw = True):
+
     # new annotation
     new_uns=None
     if adata.uns:
         new_uns = adata.uns
+
     new_obsm=None
     if adata.obsm:
         new_obsm = adata.obsm
+
     new_varm=None
     if adata.varm:
         new_varm = adata.varm
+
     new_obsp=None
     if adata.obsp:
         new_obsp = adata.obsp
+
     new_varp=None
     if adata.varp:
         new_varp = adata.varp
 
+    new_layers=None
+    if adata.layers:
+        new_layers = adata.layers
+
     # save obs and var first
-    ad.AnnData(None, obs=adata.obs, var=adata.var, uns=new_uns, obsm=new_obsm, varm=new_varm, obsp=new_obsp, varp=new_varp).write(new_h5ad)
+    ad.AnnData(None, obs=adata.obs, var=adata.var, uns=new_uns, obsm=new_obsm, varm=new_varm, obsp=new_obsp, varp=new_varp, layers=new_layers).write(new_h5ad)
 
     # append X
     with h5py.File(new_h5ad, "a") as target:
@@ -731,6 +740,7 @@ def write_h5ad_with_new_annotation(original_h5ad, adata, new_h5ad, raw = True):
         with h5py.File(original_h5ad, "r") as src:
             write_elem(target, "X", dummy_X)
             SparseDataset(target["X"]).append(SparseDataset(src["X"]))
+            
             # append raw/X if needed
             if raw and ('raw' in h5py.File(orig_h5ad, 'r')):
                 write_elem(target, "raw/X", dummy_X)
