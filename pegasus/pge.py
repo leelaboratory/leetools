@@ -78,7 +78,7 @@ def scanpy_hvf(data, flavor='cell_ranger', batch_key=None, min_mean=0.0125, max_
     sc.pl.highly_variable_genes(hvg)
 
     # set robust genes and scanpy hvg as hvf
-    data.var.highly_variable_features = False
+    data.var['highly_variable_features'] = False
     data.var.loc[hvg[hvg.highly_variable].index,'highly_variable_features'] = True
 
     # if protein_coding is True, remove non protein_coding genes from hvf
